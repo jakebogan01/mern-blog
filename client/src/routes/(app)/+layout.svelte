@@ -19,8 +19,10 @@
 	// Floating UI for Popups
 	import { computePosition, autoUpdate, flip, shift, offset, arrow } from '@floating-ui/dom';
 	import { storePopup } from '@skeletonlabs/skeleton';
+        import Nav from "$lib/components/Nav.svelte";
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
+<Nav />
 <h1 class="bg-black text-white font-semibold text-lg">app layout</h1>
 <slot />
