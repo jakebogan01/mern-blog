@@ -9,7 +9,7 @@
 </script>
 
 {#if form?.success}
-        <p class="text-green-500">Successfully registered!</p>
+        <p class="text-green-500">Successfully signed in!</p>
 {/if}
 
 <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -22,7 +22,7 @@
                         <form
                                 class="space-y-6"
                                 method="POST"
-                                action="/sign-in?/register"
+                                action="/sign-in?/login"
                                 use:enhance={() => {
                                         sending = true;
                                         return ({ update }) => {
@@ -32,20 +32,7 @@
                                         };
                                 }}>
 
-                                <!--{#if form?.emptyFields}-->
-                                <!--        {#each Object.entries(form?.emptyFields) as [username, message]}-->
-                                <!--                <p class="text-red-500 {message.length > 1 ? '' : 'hidden'}">{message}</p>-->
-                                <!--        {/each}-->
-                                <!--{/if}-->
-                                {#if form?.message}<p class="text-red-500">{form?.message.includes('duplicate key error collection') ? 'This user already exists' : ''}</p>{/if}
-
-                                <div>
-                                        <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username</label>
-                                        <div class="mt-2">
-                                                <input  id="username" name="username" type="text" autocomplete="username" value={form?.username ?? ''}  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 {form?.emptyFields?.username ? 'ring-red-500' : ''}">
-                                        </div>
-                                        {#if form?.emptyFields?.username}<p class="text-red-500">{form?.emptyFields?.username}</p>{/if}
-                                </div>
+                                {#if form?.message}<p class="text-red-500">{form?.message}</p>{/if}
 
                                 <div>
                                         <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
@@ -59,7 +46,7 @@
                                         <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
                                         <div class="mt-2 flex rounded-md shadow-sm">
                                                 <div class="relative flex flex-grow items-stretch focus-within:z-10">
-                                                        <input  type={showPassword ? 'text' : 'password'} name="password" id="password" autocomplete="new-password" value={form?.password ?? ''}  class="block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 {form?.emptyFields?.password ? 'ring-red-500' : ''}">
+                                                        <input  type={showPassword ? 'text' : 'password'} name="password" id="password" autocomplete="current-password" value={form?.password ?? ''}  class="block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 {form?.emptyFields?.password ? 'ring-red-500' : ''}">
                                                 </div>
                                                 <button on:click={()=>showPassword = !showPassword} type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                                         {#if showPassword}
@@ -72,21 +59,10 @@
                                         {#if form?.emptyFields?.password}<p class="text-red-500">{form?.emptyFields?.password}</p>{/if}
                                 </div>
 
-                                <div>
-                                        <label for="password_confirmation" class="block text-sm font-medium leading-6 text-gray-900">Confirm Password</label>
-                                        <div class="mt-2">
-                                                <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password"  value={form?.password_confirmation ?? ''} required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                        </div>
-                                </div>
-
                                 <div class="flex items-center justify-between">
                                         <div class="flex items-center">
                                                 <input id="remember-me" name="remember-me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
                                                 <label for="remember-me" class="ml-3 block text-sm leading-6 text-gray-900">Remember me</label>
-                                        </div>
-
-                                        <div class="text-sm leading-6">
-                                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
                                         </div>
                                 </div>
 
@@ -134,8 +110,8 @@
                 </div>
 
                 <p class="mt-10 text-center text-sm text-gray-200">
-                        Already a member?
-                        <a href="/sign-up" class="font-semibold leading-6 text-indigo-400 hover:text-indigo-500">Sign-in here</a>
+                        Not a member yet?
+                        <a href="/sign-up" class="font-semibold leading-6 text-indigo-400 hover:text-indigo-500">Sign-up here</a>
                 </p>
         </div>
 </div>
