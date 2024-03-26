@@ -1,11 +1,18 @@
 <script>
+        import { setContext } from 'svelte';
+        import { writable } from 'svelte/store';
         import { enhance } from '$app/forms';
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
         export let form;
         let showPassword = false;
         let sending = false;
-        $: console.log(form)
+
+        // Create a store and update it when necessary...
+        const user = writable();
+        $: user.set(form?.responseData);
+        // ...and add it to the context for child components to access
+        setContext('user', user);
 </script>
 
 {#if form?.success}
@@ -32,12 +39,7 @@
                                         };
                                 }}>
 
-                                <!--{#if form?.emptyFields}-->
-                                <!--        {#each Object.entries(form?.emptyFields) as [username, message]}-->
-                                <!--                <p class="text-red-500 {message.length > 1 ? '' : 'hidden'}">{message}</p>-->
-                                <!--        {/each}-->
-                                <!--{/if}-->
-                                {#if form?.message}<p class="text-red-500">{form?.message}</p>{/if}
+                                {#if form?.responseData.message}<p class="text-red-500">{form?.responseData.message}</p>{/if}
 
                                 <div>
                                         <label for="username" class="block text-sm font-medium leading-6 text-gray-900">Username</label>

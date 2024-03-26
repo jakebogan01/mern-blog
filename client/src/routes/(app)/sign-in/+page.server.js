@@ -20,12 +20,9 @@ export const actions = {
                         body: JSON.stringify({ email, password }),
                 });
 
-                const responseData = await response.json();
-
-                if (responseData.message) {
-                        return fail(400, { message: responseData.message });
-                }
-
-                return { success: true };
+                return {
+                        success: true,
+                        responseData: await response.json(),
+                };
         }
 };
