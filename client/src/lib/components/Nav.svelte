@@ -1,6 +1,10 @@
 <script>
-        import {LightSwitch} from "@skeletonlabs/skeleton";
-        import { page } from "$app/stores"
+        import { currentUser } from "$lib/stores/userStore.js";
+        import { Avatar, LightSwitch } from "@skeletonlabs/skeleton";
+        import { page } from "$app/stores";
+        let showProfileMenu = false;
+
+        $: console.log($currentUser);
 </script>
 
 <nav class="bg-gray-800">
@@ -36,6 +40,27 @@
                         <div>
                                 <LightSwitch />
                         </div>
+                        {#if $currentUser}
+                                <div class="relative inline-block text-left ml-4">
+                                        <button type="button" on:click={()=>showProfileMenu = !showProfileMenu} aria-expanded="true" aria-haspopup="true">
+                                                <Avatar src={$currentUser?.profilePicture} fallback="fallback-image.jpg" width="w-8" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
+                                        </button>
+
+                                        {#if showProfileMenu}
+                                                <div class="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                                                        <div class="py-1" role="none">
+                                                                <span class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-0">{$currentUser?.username}</span>
+                                                                <span class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">{$currentUser?.email}</span>
+                                                                <a href="/dashboard?tab=profile" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">Profile</a>
+                                                                <hr>
+                                                                <form role="none">
+                                                                        <button type="submit" class="text-gray-700 block w-full px-4 py-2 text-left text-sm" role="menuitem" tabindex="-1" id="menu-item-3">Sign out</button>
+                                                                </form>
+                                                        </div>
+                                                </div>
+                                        {/if}
+                                </div>
+                        {/if}
                 </div>
         </div>
 </nav>

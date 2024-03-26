@@ -1,8 +1,9 @@
 <script>
-        import { currentUser } from '../../../stores/userStore.js';
+        import { currentUser } from '$lib/stores/userStore.js';
         import { enhance } from '$app/forms';
         import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
         import { app } from "../../../firebase.js";
+        import { goto } from '$app/navigation';
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
         export let form;
@@ -34,6 +35,7 @@
                                 success = true;
                                 sending = false;
                                 currentUser.set(responseGoogleData);
+                                await goto('/');
                         }
                 } catch (error) {
                         sending = false;

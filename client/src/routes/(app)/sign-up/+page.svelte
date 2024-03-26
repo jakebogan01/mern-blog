@@ -1,6 +1,7 @@
 <script>
-        import { currentUser } from '../../../stores/userStore.js';
+        import { currentUser } from '$lib/stores/userStore.js';
         import { enhance } from '$app/forms';
+        import { goto } from "$app/navigation";
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
         export let form;
