@@ -19,7 +19,11 @@ const userSchema = new mongoose.Schema({
                 required: true,
                 min: 6,
                 max: 225
-        }
+        },
+        profilePicture: {
+                type: String,
+                default: "https://unavatar.io/github/eugenio.oliveira"
+        },
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);

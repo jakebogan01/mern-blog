@@ -25,6 +25,8 @@
   "type": "module",
   "dependencies": {
     "@floating-ui/dom": "1.6.3",
+    "dotenv": "^16.4.5",
+    "firebase": "^10.9.0",
     "highlight.js": "11.9.0",
     "svelte-persisted-store": "^0.9.1"
   }
