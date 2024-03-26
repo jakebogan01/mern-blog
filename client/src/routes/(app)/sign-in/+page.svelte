@@ -1,6 +1,5 @@
 <script>
-        import { setContext } from 'svelte';
-        import { writable } from 'svelte/store';
+        import { currentUser } from '../../../stores/userStore.js';
         import { enhance } from '$app/forms';
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
@@ -8,11 +7,9 @@
         let showPassword = false;
         let sending = false;
 
-        // Create a store and update it when necessary...
-        const user = writable();
-        $: user.set(form?.responseData);
-        // ...and add it to the context for child components to access
-        setContext('user', user);
+        $: if (form?.responseData) {
+                currentUser.set(form?.responseData);
+        }
 </script>
 
 {#if form?.success}
