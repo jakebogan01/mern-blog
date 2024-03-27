@@ -3,8 +3,6 @@
         import { Avatar, LightSwitch } from "@skeletonlabs/skeleton";
         import { page } from "$app/stores";
         let showProfileMenu = false;
-
-        $: console.log($currentUser);
 </script>
 
 <nav class="bg-gray-800">
