@@ -1,22 +1,27 @@
 <script>
+        import { enhance } from '$app/forms';
         import { currentUser } from '$lib/stores/userStore.js';
         import {Avatar, ProgressRadial} from "@skeletonlabs/skeleton";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
         import { app } from "$lib/firebase.js";
+        /** @type {import('./$types').ActionData} */
+        /* svelte-ignore unused-export-let */
+        export let form;
+        /* svelte-ignore unused-export-let */
         export let data;
-        let imageFileUrl, fileUpload, progressError = null;
+        let profilePicture, fileUpload, progressError = null;
         let currentProgress = 0;
 
         $: {
                 console.log(currentProgress);
                 console.log(progressError);
+                console.log(profilePicture);
         }
         const handleUpdateImage = (e) => {
                 const file = e.target.files[0];
                 const fileName = new Date().getTime() +  file.name;
                 if (file) {
-                        imageFileUrl = URL.createObjectURL(file);
-                        console.log(imageFileUrl);
+                        profilePicture = URL.createObjectURL(file);
                 }
                 const storage = getStorage(app);
                 const storageRef = ref(storage, fileName);
@@ -32,16 +37,37 @@
                                 progressError = "Could not upload image (File must be less than 2MB)";
                                 console.log(error);
                         },
-                        () => {
-                                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                                        imageFileUrl = downloadURL;
-                                        console.log("File available at", downloadURL);
+                        async () => {
+                                getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
+                                        profilePicture = downloadURL;
                                 });
+
+                                try {
+                                        profilePicture = profilePicture.replace(/^blob:/, '');
+                                        const response = await fetch(`/api/user/update/${$currentUser?._id}`, {
+                                                method: "PUT",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ "profilePicture": profilePicture })
+                                        });
+                                        const data = await response.json();
+                                        console.log(data);
+
+                                        currentUser.update((user) => {
+                                                return { ...user, profilePicture: data.profilePicture };
+                                        });
+                                } catch (error) {
+                                        console.error('New Error:', error);
+                                }
                                 console.log("Upload is completed");
                         }
                 );
         };
         $: console.log(data);
+        $: console.log(form?.responseData);
+
+        $: if (form?.responseData) {
+                currentUser.set(form?.responseData);
+        }
 </script>
 
 <div class="flex justify-between">
@@ -49,8 +75,8 @@
                 My profile
                 {#if $currentUser}
                         <div>
-                                <input type="file" name="imageFile" id="imageFile" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
-                                <Avatar src={imageFileUrl || $currentUser?.profilePicture} on:click={()=>fileUpload.click()} width="w-[160px]" fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
+                                <input type="file" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
+                                <Avatar src={profilePicture || $currentUser?.profilePicture} on:click={()=>fileUpload.click()} width="w-[160px]" fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
                                 {#if progressError}
                                         <p class="text-red-500">{progressError}</p>
                                 {:else}
@@ -62,14 +88,20 @@
                                 {/if}
                         </div>
 
-                        <form class="space-y-6">
+                        <form
+                                class="space-y-6"
+                                method="POST"
+                                action="?/updateUserProfile"
+                                enctype="multipart/form-data"
+                                use:enhance>
+                                <input type="password" id="userid" name="userid" value={$currentUser?._id} class="hidden">
 
                                 <!--{#if form?.responseData.message}<p class="text-red-500">{form?.responseData.message}</p>{/if}-->
 
                                 <div>
                                         <label for="username" class="block text-sm font-medium leading-6 text-white">Username</label>
                                         <div class="mt-2">
-                                                <input  id="username" name="username" type="text" autocomplete="username" value={$currentUser?.username}  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                                <input  id="username" name="username" type="text" autocomplete="username" placeholder={$currentUser?.username}  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                         </div>
                                         <!--{#if form?.emptyFields?.username}<p class="text-red-500">{form?.emptyFields?.username}</p>{/if}-->
                                 </div>
@@ -77,7 +109,7 @@
                                 <div>
                                         <label for="email" class="block text-sm font-medium leading-6 text-white">Email address</label>
                                         <div class="mt-2">
-                                                <input  id="email" name="email" type="email" autocomplete="email" value={$currentUser?.email}  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                                <input  id="email" name="email" type="email" autocomplete="email" placeholder={$currentUser?.email}  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                         </div>
                                         <!--{#if form?.emptyFields?.email}<p class="text-red-500">{form?.emptyFields?.email}</p>{/if}-->
                                 </div>
@@ -86,7 +118,7 @@
                                         <label for="password" class="block text-sm font-medium leading-6 text-white">Password</label>
                                         <div class="mt-2 flex rounded-md shadow-sm">
                                                 <div class="relative flex flex-grow items-stretch focus-within:z-10">
-                                                        <input  type="text" name="password" id="password" autocomplete="new-password" placeholder="Password" value=""  class="block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                                        <input  type="text" name="password" id="password" autocomplete="new-password" placeholder="Password" class="block w-full rounded-none rounded-l-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                                 </div>
                                                 <button type="button" class="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
                                                         <!--{#if showPassword}-->
@@ -102,7 +134,7 @@
                                 <div>
                                         <label for="password_confirmation" class="block text-sm font-medium leading-6 text-white">Confirm Password</label>
                                         <div class="mt-2">
-                                                <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" placeholder="Password" value="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                                <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" placeholder="Password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                         </div>
                                 </div>
 
