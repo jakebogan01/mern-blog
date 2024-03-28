@@ -9,7 +9,7 @@
         export let form;
         /* svelte-ignore unused-export-let */
         export let data;
-        let profilePicture, fileUpload, progressError = null;
+        let profilePicture, fileUpload, submitForm, progressError = null;
         let currentProgress = 0;
 
         $: {
@@ -37,28 +37,12 @@
                                 progressError = "Could not upload image (File must be less than 2MB)";
                                 console.log(error);
                         },
-                        async () => {
+                        () => {
                                 getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
                                         profilePicture = downloadURL;
-                                });
-
-                                try {
                                         profilePicture = profilePicture.replace(/^blob:/, '');
-                                        const response = await fetch(`/api/user/update/${$currentUser?._id}`, {
-                                                method: "PUT",
-                                                headers: { "Content-Type": "application/json" },
-                                                body: JSON.stringify({ "profilePicture": profilePicture })
-                                        });
-                                        const data = await response.json();
-                                        console.log(data);
-
-                                        currentUser.update((user) => {
-                                                return { ...user, profilePicture: data.profilePicture };
-                                        });
-                                } catch (error) {
-                                        console.error('New Error:', error);
-                                }
-                                console.log("Upload is completed");
+                                        submitForm.requestSubmit()
+                                });
                         }
                 );
         };
@@ -74,8 +58,16 @@
         <div>
                 My profile
                 {#if $currentUser}
-                        <div>
+                        <form
+                                bind:this={submitForm}
+                                class="space-y-6"
+                                method="POST"
+                                action="?/updateUserImage"
+                                enctype="multipart/form-data"
+                                use:enhance>
                                 <input type="file" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
+                                <input type="password" name="userid" value={$currentUser?._id} class="hidden">
+                                <input type="text" id="profilePicture" name="profilePicture" value={profilePicture} class="hidden">
                                 <Avatar src={profilePicture || $currentUser?.profilePicture} on:click={()=>fileUpload.click()} width="w-[160px]" fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
                                 {#if progressError}
                                         <p class="text-red-500">{progressError}</p>
@@ -86,13 +78,12 @@
                                                 </ProgressRadial>
                                         {/if}
                                 {/if}
-                        </div>
+                        </form>
 
                         <form
                                 class="space-y-6"
                                 method="POST"
                                 action="?/updateUserProfile"
-                                enctype="multipart/form-data"
                                 use:enhance>
                                 <input type="password" id="userid" name="userid" value={$currentUser?._id} class="hidden">
 
