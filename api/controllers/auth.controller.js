@@ -10,7 +10,34 @@ export const signup = async (req, res, next) => {
                 return next(errorHandler(400, "All fields are required"));
         }
 
-        const hashPassword = bcryptjs.hashSync(password, 10);
+        let hashPassword;
+
+        if (password) {
+                if (password.length < 6) {
+                        return next(errorHandler(400, 'Password must be at least 6 characters'));
+                }
+                hashPassword = bcryptjs.hashSync(password, 10);
+        }
+
+        if (username.length < 7 || username.length > 20) {
+                return next(
+                        errorHandler(400, 'Username must be between 7 and 20 characters')
+                );
+        }
+        if (username.includes(' ')) {
+                return next(errorHandler(400, 'Username cannot contain spaces'));
+        }
+        if (username !== username.toLowerCase()) {
+                return next(errorHandler(400, 'Username must be lowercase'));
+        }
+        if (!username.match(/^[a-zA-Z0-9]+$/)) {
+                return next(
+                        errorHandler(400, 'Username can only contain letters and numbers')
+                );
+        }
+        if (await User.findOne({ email })) {
+                return next(errorHandler(400, 'User already exists'));
+        }
 
         const newUser = new User({
                 username,
@@ -21,7 +48,9 @@ export const signup = async (req, res, next) => {
         try {
                 await newUser.save();
                 const { password: pass, ...user } = newUser._doc;
-                res.json({ message: "User created successfully", user });
+                const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+                res.status(200).cookie('access_token', token, { httpOnly: true }).json({ message: "User created successfully", user });
         } catch (error) {
                 next(error);
         }
