@@ -1,7 +1,46 @@
 <script>
         import { currentUser } from '$lib/stores/userStore.js';
-        import {Avatar} from "@skeletonlabs/skeleton";
+        import {Avatar, ProgressRadial} from "@skeletonlabs/skeleton";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+        import { app } from "$lib/firebase.js";
         export let data;
+        let imageFileUrl, fileUpload, progressError = null;
+        let currentProgress = 0;
+
+        $: {
+                console.log(currentProgress);
+                console.log(progressError);
+        }
+        const handleUpdateImage = (e) => {
+                const file = e.target.files[0];
+                const fileName = new Date().getTime() +  file.name;
+                if (file) {
+                        imageFileUrl = URL.createObjectURL(file);
+                        console.log(imageFileUrl);
+                }
+                const storage = getStorage(app);
+                const storageRef = ref(storage, fileName);
+                const uploadTask = uploadBytesResumable(storageRef, file);
+                uploadTask.on(
+                        "state_changed",
+                        (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                console.log("Upload is " + progress + "% done");
+                                currentProgress = progress.toFixed(0);
+                        },
+                        (error) => {
+                                progressError = "Could not upload image (File must be less than 2MB)";
+                                console.log(error);
+                        },
+                        () => {
+                                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                                        imageFileUrl = downloadURL;
+                                        console.log("File available at", downloadURL);
+                                });
+                                console.log("Upload is completed");
+                        }
+                );
+        };
         $: console.log(data);
 </script>
 
@@ -9,7 +48,19 @@
         <div>
                 My profile
                 {#if $currentUser}
-                        <Avatar src={$currentUser?.profilePicture} fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
+                        <div>
+                                <input type="file" name="imageFile" id="imageFile" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
+                                <Avatar src={imageFileUrl || $currentUser?.profilePicture} on:click={()=>fileUpload.click()} width="w-[160px]" fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
+                                {#if progressError}
+                                        <p class="text-red-500">{progressError}</p>
+                                {:else}
+                                        {#if currentProgress > 0 && currentProgress < 100}
+                                                <ProgressRadial value={currentProgress}>
+                                                        {currentProgress}%
+                                                </ProgressRadial>
+                                        {/if}
+                                {/if}
+                        </div>
 
                         <form class="space-y-6">
 
@@ -51,7 +102,7 @@
                                 <div>
                                         <label for="password_confirmation" class="block text-sm font-medium leading-6 text-white">Confirm Password</label>
                                         <div class="mt-2">
-                                                <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" placeholder="Password" value="" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                                <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" placeholder="Password" value="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
                                         </div>
                                 </div>
 
