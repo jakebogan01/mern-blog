@@ -48,7 +48,7 @@ export const signup = async (req, res, next) => {
         try {
                 await newUser.save();
                 const { password: pass, ...user } = newUser._doc;
-                const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+                const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "30m" });
 
                 res.status(200).cookie('access_token', token, { httpOnly: true }).json({ message: "User created successfully", user });
         } catch (error) {
@@ -76,7 +76,7 @@ export const signin = async (req, res, next) => {
                         return next(errorHandler(400, "Invalid password"));
                 }
 
-                const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+                const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, { expiresIn: "30m" });
 
                 const { password: pass, ...rest } = validUser._doc;
 
@@ -93,7 +93,7 @@ export const google = async (req, res, next) => {
                 const user = await User.findOne({ email });
 
                 if (user) {
-                        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+                        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30m" });
                         const { password, ...rest } = user._doc;
                         res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
                 } else {
@@ -106,7 +106,7 @@ export const google = async (req, res, next) => {
                                 profilePicture: googlePhotoUrl
                         });
                         await newUser.save();
-                        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+                        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "30m" });
                         const { password, ...rest } = newUser._doc;
                         res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
                 }
