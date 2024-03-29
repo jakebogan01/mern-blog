@@ -42,5 +42,29 @@ export const actions = {
                         success: true,
                         responseData: await response.json()
                 };
+        },
+        deleteUser: async ({ fetch, request }) => {
+                const data = await request.formData();
+                const userId = data.get('userid');
+
+                if (!userId) {
+                        return fail(400, { message: "Invalid action" });
+                }
+
+                const response = await fetch(`/api/user/delete/${userId}`, {
+                        method: "DELETE",
+                        headers: { "Content-Type": "application/json" }
+                });
+
+                let responseData = await response.json();
+
+                if (!responseData.delete) {
+                        return fail(400, { message: "Invalid action" });
+                }
+
+                return {
+                        delete: responseData.delete,
+                        success: true,
+                };
         }
 };

@@ -4,6 +4,7 @@
         import {Avatar, ProgressRadial} from "@skeletonlabs/skeleton";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
         import { app } from "$lib/firebase.js";
+        import { goto } from "$app/navigation";
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
         export let form;
@@ -51,6 +52,9 @@
 
         $: if (form?.responseData) {
                 currentUser.set(form?.responseData);
+        } else if (form?.delete) {
+                currentUser.set(null);
+                goto("/sign-in");
         }
 </script>
 
@@ -138,10 +142,17 @@
                                                         Update
                                                 <!--{/if}-->
                                         </button>
-                                        <button type="button" class="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                                Delete account
-                                        </button>
                                 </div>
+                        </form>
+
+                        <form
+                                method="POST"
+                                action="?/deleteUser"
+                                use:enhance>
+                                <input type="password" name="userid" value={$currentUser?._id} class="hidden">
+                                <button type="submit" class="flex w-full justify-center rounded-md bg-red-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                                        Delete account
+                                </button>
                         </form>
                 {/if}
         </div>
