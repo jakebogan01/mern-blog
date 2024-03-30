@@ -66,5 +66,22 @@ export const actions = {
                         delete: responseData.delete,
                         success: true,
                 };
+        },
+        signoutUser: async ({ fetch}) => {
+                const response = await fetch(`/api/user/signout`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" }
+                });
+
+                let responseData = await response.json();
+
+                if (!responseData.logout) {
+                        return fail(400, { message: "Invalid action" });
+                }
+
+                return {
+                        logout: responseData.logout,
+                        success: true,
+                };
         }
 };

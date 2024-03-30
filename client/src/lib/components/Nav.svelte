@@ -1,4 +1,5 @@
 <script>
+        import { enhance } from '$app/forms';
         import { currentUser } from "$lib/stores/userStore.js";
         import { Avatar, LightSwitch } from "@skeletonlabs/skeleton";
         import { page } from "$app/stores";
@@ -51,7 +52,11 @@
                                                                 <span class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">{$currentUser?.email}</span>
                                                                 <a href="/dashboard?tab=profile" class="text-gray-700 block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="menu-item-1">Profile</a>
                                                                 <hr>
-                                                                <form role="none">
+                                                                <form
+                                                                        role="none"
+                                                                        method="POST"
+                                                                        action="?/signoutUser"
+                                                                        use:enhance>
                                                                         <button type="submit" class="text-gray-700 block w-full px-4 py-2 text-left text-sm" role="menuitem" tabindex="-1" id="menu-item-3">Sign out</button>
                                                                 </form>
                                                         </div>

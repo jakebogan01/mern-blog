@@ -13,11 +13,7 @@
         let profilePicture, fileUpload, submitForm, progressError = null;
         let currentProgress = 0;
 
-        $: {
-                console.log(currentProgress);
-                console.log(progressError);
-                console.log(profilePicture);
-        }
+        $: { currentProgress; progressError; profilePicture; }
         const handleUpdateImage = (e) => {
                 const file = e.target.files[0];
                 const fileName = new Date().getTime() +  file.name;
@@ -47,12 +43,13 @@
                         }
                 );
         };
-        $: console.log(data);
-        $: console.log(form?.responseData);
 
         $: if (form?.responseData) {
                 currentUser.set(form?.responseData);
         } else if (form?.delete) {
+                currentUser.set(null);
+                goto("/sign-in");
+        } else if (form?.logout) {
                 currentUser.set(null);
                 goto("/sign-in");
         }
