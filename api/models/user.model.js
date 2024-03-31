@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
                 type: String,
                 default: "https://unavatar.io/github/eugenio.oliveira"
         },
+        adminType: {
+                type: String,
+                default: "member",
+        },
 }, {timestamps: true});
 
 const User = mongoose.model("User", userSchema);
