@@ -1,25 +1,57 @@
-import { fail  } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { app } from "$lib/firebase.js";
 /** @type {import('./$types').Actions} */
 export const actions = {
         updateUserImage: async ({ fetch, request }) => {
-                const data = await request.formData();
-                const userId = data.get('userid');
-                const profilePicture = data.get('profilePicture');
+                try {
+                        const data = await request.formData();
+                        const userId = data.get('userid');
+                        const file = data.get('file');
 
-                if (!profilePicture || !userId) {
-                        return fail(400, { message: "Invalid data" });
+                        const fileName = new Date().getTime() + file.name;
+                        const storage = getStorage(app);
+                        const storageRef = ref(storage, fileName);
+                        const uploadTask = uploadBytesResumable(storageRef, file);
+
+                        let profilePicture;
+
+                        await new Promise((resolve, reject) => {
+                                uploadTask.on(
+                                    "state_changed",
+                                    (snapshot) => {
+                                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                            console.log("Upload is " + progress + "% done");
+                                    },
+                                    (error) => {
+                                            reject(fail(400, { message: error }));
+                                    },
+                                    () => {
+                                            getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                                                    profilePicture = downloadURL;
+                                                    resolve();
+                                            }).catch(reject);
+                                    }
+                                );
+                        });
+
+                        const response = await fetch(`/api/user/update/${userId}`, {
+                                method: "PUT",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ profilePicture }),
+                        });
+
+                        const responseData = await response.json();
+
+                        return {
+                                success: true,
+                                responseData: responseData,
+                        };
+                } catch (error) {
+                        // Handle any errors here
+                        console.error("Error creating post:", error);
+                        return fail(500, { message: "Internal Server Error" });
                 }
-
-                const response = await fetch(`/api/user/update/${userId}`, {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ profilePicture }),
-                });
-
-                return {
-                        success: true,
-                        responseData: await response.json()
-                };
         },
         updateUserProfile: async ({ fetch, request }) => {
                 const data = await request.formData();

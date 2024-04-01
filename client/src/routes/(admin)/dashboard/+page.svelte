@@ -1,9 +1,7 @@
 <script>
         import { enhance } from '$app/forms';
         import { currentUser } from '$lib/stores/userStore.js';
-        import {Avatar, ProgressRadial} from "@skeletonlabs/skeleton";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-        import { app } from "$lib/firebase.js";
+        import { Avatar } from "@skeletonlabs/skeleton";
         import { goto } from "$app/navigation";
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
@@ -11,38 +9,12 @@
         /* svelte-ignore unused-export-let */
         export let data;
         let profilePicture, fileUpload, submitForm, progressError = null;
-        let currentProgress = 0;
 
-        $: { currentProgress; progressError; profilePicture; }
-        const handleUpdateImage = (e) => {
-                const file = e.target.files[0];
-                const fileName = new Date().getTime() +  file.name;
-                if (file) {
-                        profilePicture = URL.createObjectURL(file);
-                }
-                const storage = getStorage(app);
-                const storageRef = ref(storage, fileName);
-                const uploadTask = uploadBytesResumable(storageRef, file);
-                uploadTask.on(
-                        "state_changed",
-                        (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                console.log("Upload is " + progress + "% done");
-                                currentProgress = progress.toFixed(0);
-                        },
-                        (error) => {
-                                progressError = "Could not upload image (File must be less than 2MB)";
-                                console.log(error);
-                        },
-                        () => {
-                                getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
-                                        profilePicture = downloadURL;
-                                        profilePicture = profilePicture.replace(/^blob:/, '');
-                                        submitForm.requestSubmit()
-                                });
-                        }
-                );
+        const handleUpdateImage = () => {
+                submitForm.requestSubmit();
         };
+
+        $: console.log(form);
 
         $: if (form?.responseData) {
                 currentUser.set(form?.responseData);
@@ -66,19 +38,9 @@
                                 action="?/updateUserImage"
                                 enctype="multipart/form-data"
                                 use:enhance>
-                                <input type="file" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
+                                <input type="file" id="file" name="file" accept="image/png, image/jpeg" on:change={handleUpdateImage} bind:this={fileUpload} class="hidden">
                                 <input type="password" name="userid" value={$currentUser?._id} class="hidden">
-                                <input type="text" id="profilePicture" name="profilePicture" value={profilePicture} class="hidden">
                                 <Avatar src={profilePicture || $currentUser?.profilePicture} on:click={()=>fileUpload.click()} width="w-[160px]" fallback="fallback-image.jpg" border="border-4 border-surface-300-600-token hover:!border-primary-500" cursor="cursor-pointer" />
-                                {#if progressError}
-                                        <p class="text-red-500">{progressError}</p>
-                                {:else}
-                                        {#if currentProgress > 0 && currentProgress < 100}
-                                                <ProgressRadial value={currentProgress}>
-                                                        {currentProgress}%
-                                                </ProgressRadial>
-                                        {/if}
-                                {/if}
                         </form>
 
                         <form
