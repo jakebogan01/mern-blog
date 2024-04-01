@@ -48,7 +48,7 @@ export const signup = async (req, res, next) => {
         try {
                 await newUser.save();
                 const { password: pass, ...user } = newUser._doc;
-                const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: "30m" });
+                const token = jwt.sign({ id: newUser._id, adminType: validUser.adminType }, process.env.JWT_SECRET, { expiresIn: "30m" });
 
                 res.status(200).cookie('access_token', token, { httpOnly: true }).json({ message: "User created successfully", user });
         } catch (error) {
