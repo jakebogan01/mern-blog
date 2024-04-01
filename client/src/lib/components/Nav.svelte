@@ -16,7 +16,7 @@
                                 <div class="hidden lg:ml-6 lg:block">
                                         <div class="flex space-x-4">
                                                 <a href="/" class="{$page.url.pathname === '/' ? 'variant-filled-primary' : ''} rounded-md hover:bg-gray-700 px-3 py-2 text-sm font-medium text-white">Home</a>
-                                                <a href="/dashboard" class="{$page.url.pathname === '/dashboard' ? 'variant-filled-primary' : ''} rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Dashboard</a>
+                                                <a href="/dashboard?tab=profile" class="{$page.url.pathname === '/dashboard' ? 'variant-filled-primary' : ''} rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Dashboard</a>
                                                 <a href="/projects" class="{$page.url.pathname === '/projects' ? 'variant-filled-primary' : ''} rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Projects</a>
                                                 <a href="/sign-in" class="{$page.url.pathname === '/sign-in' ? 'variant-filled-primary' : ''} rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign in</a>
                                                 <a href="/sign-up" class="{$page.url.pathname === '/sign-up' ? 'variant-filled-primary' : ''} rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Sign up</a>
