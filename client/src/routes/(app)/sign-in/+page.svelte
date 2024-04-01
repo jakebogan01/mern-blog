@@ -7,10 +7,14 @@
         /** @type {import('./$types').ActionData} */
         /* svelte-ignore unused-export-let */
         export let form;
+        export let data;
+        $: console.log(data);
         let showPassword, sending, success = false;
 
         $: if (form?.responseData) {
                 currentUser.set(form?.responseData);
+        } else if (data?.unauthorized) {
+                currentUser.set(null);
         }
 
         const auth = getAuth(app);

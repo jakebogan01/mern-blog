@@ -1,6 +1,49 @@
-import { fail } from '@sveltejs/kit';
+import { fail, error, redirect} from '@sveltejs/kit';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "$lib/firebase.js";
+
+/** @type {import('./$types').LayoutServerLoad} */
+export const load = async ({ fetch, setHeaders, cookies }) => {
+        const cookie = cookies.get('access_token');
+        if (!cookie) {
+                return redirect(301, '/sign-in?unauthorized=true');
+        }
+
+        const userId = cookie ? JSON.parse(atob(cookie.split('.')[1])).id : null;
+
+        try {
+                const response = await fetch(`/api/post/getposts?userId=${userId}`);
+
+                if (!response.ok) {
+                        error(401 ,"Failed to fetch posts");
+                }
+
+                // setHeaders({
+                //         age: response.headers.get('age'),
+                //         'cache-control': response.headers.get('cache-control')
+                // })
+
+                const data = await response.json();
+
+                const posts = data?.posts.map((post) => ({
+                        id: post._id,
+                        slug: post.slug,
+                        title: post.title,
+                        category: post.category,
+                        content: post.content,
+                        image: post.image,
+                        updatedAt: post.updatedAt,
+                }));
+
+                return {
+                        posts: posts
+                };
+        } catch (error) {
+                console.error("Error fetching posts:", error);
+                return fail(500, { message: "Internal Server Error" });
+        }
+};
+
 /** @type {import('./$types').Actions} */
 export const actions = {
         updateUserImage: async ({ fetch, request }) => {

@@ -1,4 +1,12 @@
 import { fail  } from '@sveltejs/kit';
+
+/** @type {import('./$types').LayoutServerLoad} */
+export async function load({ url }) {
+        return {
+                unauthorized: url.searchParams.get('unauthorized')
+        };
+}
+
 /** @type {import('./$types').Actions} */
 export const actions = {
         login: async ({ fetch, request }) => {
