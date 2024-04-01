@@ -76,7 +76,7 @@ export const signin = async (req, res, next) => {
                         return next(errorHandler(400, "Invalid password"));
                 }
 
-                const token = jwt.sign({ id: validUser._id, isAdmin: validUser.isAdmin }, process.env.JWT_SECRET, { expiresIn: "30m" });
+                const token = jwt.sign({ id: validUser._id, adminType: validUser.adminType }, process.env.JWT_SECRET, { expiresIn: "30m" });
 
                 const { password: pass, ...rest } = validUser._doc;
 
@@ -93,7 +93,7 @@ export const google = async (req, res, next) => {
                 const user = await User.findOne({ email });
 
                 if (user) {
-                        const token = jwt.sign({ id: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: "30m" });
+                        const token = jwt.sign({ id: user._id, adminType: user.adminType }, process.env.JWT_SECRET, { expiresIn: "30m" });
 
                         const { password, ...rest } = user._doc;
                         res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
@@ -107,7 +107,7 @@ export const google = async (req, res, next) => {
                                 profilePicture: googlePhotoUrl
                         });
                         await newUser.save();
-                        const token = jwt.sign({ id: newUser._id, isAdmin: newUser.isAdmin }, process.env.JWT_SECRET, { expiresIn: "30m" });
+                        const token = jwt.sign({ id: newUser._id, adminType: newUser.adminType }, process.env.JWT_SECRET, { expiresIn: "30m" });
                         const { password, ...rest } = newUser._doc;
                         res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
                 }

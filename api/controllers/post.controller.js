@@ -2,7 +2,7 @@ import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
 export const create = async (req, res, next) => {
-        if (req.user.adminType !== "admin" || req.user.adminType !== "member") {
+        if (req.user.adminType !== "admin" && req.user.adminType !== "member") {
                 return next(errorHandler(403, 'You are not authorized to create a post'));
         }
         if (!req.body.title || !req.body.content) {
