@@ -28,6 +28,7 @@
     "dotenv": "^16.4.5",
     "firebase": "^10.9.0",
     "highlight.js": "11.9.0",
+    "rellax": "^1.12.1",
     "svelte-persisted-store": "^0.9.1"
   }
 }

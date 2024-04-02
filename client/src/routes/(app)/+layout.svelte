@@ -23,6 +23,6 @@
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 </script>
 
-<Nav />
-<h1 class="bg-black text-white font-semibold text-lg">app layout</h1>
+<!--<Nav />-->
+<!--<h1 class="bg-black text-white font-semibold text-lg">app layout</h1>-->
 <slot />
